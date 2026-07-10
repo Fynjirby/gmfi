@@ -7,7 +7,7 @@ import (
 	"sync"
 )
 
-func diffFiles(f1, f2 string) {
+func compareFiles(f1, f2 string) {
 	var meta1, meta2 *FileMeta
 	var err1, err2 error
 	var wg sync.WaitGroup
@@ -15,33 +15,33 @@ func diffFiles(f1, f2 string) {
 	wg.Add(2)
 	go func() {
 		defer wg.Done()
-		meta1, err1 = GetFileMeta(f1)
+		meta1, err1 = getMeta(f1)
 	}()
 	go func() {
 		defer wg.Done()
-		meta2, err2 = GetFileMeta(f2)
+		meta2, err2 = getMeta(f2)
 	}()
 	wg.Wait()
 
 	if err1 != nil || err2 != nil {
 		if err1 != nil {
-			fmt.Printf(red("\nerror reading %s\n"), f1)
+			fmt.Printf(red("error reading %s\n"), f1)
 		}
 		if err2 != nil {
-			fmt.Printf(red("\nerror reading %s\n"), f2)
+			fmt.Printf(red("error reading %s\n"), f2)
 		}
 		return
 	}
 
 	fmt.Printf("> Comparing %s with %s\n\n", red(meta1.Name), green(meta2.Name))
-	printDiff("Size", meta1.Size, meta2.Size)
-	printDiff("Type", meta1.Type, meta2.Type)
-	printDiff("Path", meta1.Path, meta2.Path)
-	printDiff("Modified", meta1.Mod, meta2.Mod)
-	printDiff("Perms", meta1.Perm, meta2.Perm)
+	printComp("Size", meta1.Size, meta2.Size)
+	printComp("Type", meta1.Type, meta2.Type)
+	printComp("Path", meta1.Path, meta2.Path)
+	printComp("Modified", meta1.Mod, meta2.Mod)
+	printComp("Perms", meta1.Perm, meta2.Perm)
 }
 
-func printDiff(label, v1, v2 string) {
+func printComp(label, v1, v2 string) {
 	if label == "Path" && filepath.Dir(v1) == filepath.Dir(v2) && v1 != v2 {
 		fmt.Printf("%-10s ./%s -> ./%s\n", label+":", red(filepath.Base(v1)), green(filepath.Base(v2)))
 	} else if v1 == v2 {

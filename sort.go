@@ -8,7 +8,7 @@ import (
 	"sync"
 )
 
-func filesSort(sortBy string, root string, topN int) {
+func sortFiles(sortBy string, topN int, dir string) {
 	var files []FileMeta
 	var mu sync.Mutex
 	var wg sync.WaitGroup
@@ -21,7 +21,7 @@ func filesSort(sortBy string, root string, topN int) {
 		go func() {
 			defer wg.Done()
 			for path := range paths {
-				meta, err := GetFileMeta(path)
+				meta, err := getMeta(path)
 				if err == nil {
 					mu.Lock()
 					files = append(files, *meta)
@@ -31,7 +31,7 @@ func filesSort(sortBy string, root string, topN int) {
 		}()
 	}
 
-	filepath.WalkDir(root, func(path string, d os.DirEntry, err error) error {
+	filepath.WalkDir(dir, func(path string, d os.DirEntry, err error) error {
 		if err == nil && !d.IsDir() {
 			paths <- path
 		}
@@ -41,16 +41,16 @@ func filesSort(sortBy string, root string, topN int) {
 	wg.Wait()
 
 	if len(files) == 0 {
-		fmt.Printf("\n%s\n", "no files found")
+		fmt.Println("no files found")
 		return
 	}
 
 	sort.Slice(files, func(i, j int) bool {
 		switch sortBy {
 
-		case "big":
+		case "biggest":
 			return files[i].RawSize > files[j].RawSize
-		case "small":
+		case "smallest":
 			return files[i].RawSize < files[j].RawSize
 		}
 		return false
@@ -59,22 +59,14 @@ func filesSort(sortBy string, root string, topN int) {
 	if topN > len(files) {
 		topN = len(files)
 	}
-	if root == "." {
-		root = "current directory"
+	if dir == "." {
+		dir = "current directory"
 	}
 
-	title := "files"
-	switch sortBy {
-	case "big":
-		title = fmt.Sprintf("%s files", bold("biggest"))
-	case "small":
-		title = fmt.Sprintf("%s files", bold("smallest"))
-	}
-
-	fmt.Printf("\n%d %s in %s\n", topN, title, shortHome(root))
+	fmt.Printf("%d %s files in %s\n\n", topN, bold(sortBy), shortenHome(dir))
 	for i := 0; i < topN; i++ {
 		f := files[i]
-		fmt.Printf("\n%-10s %s %s\n", green(f.Size), pink(shortHome(f.Path)), blue(f.Mod))
+		fmt.Printf("%-10s %s %s\n", green(f.Size), pink(shortenHome(f.Path)), blue(f.Mod))
 		fmt.Printf("%s\n", yellow(f.Type))
 	}
 }

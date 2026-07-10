@@ -23,7 +23,7 @@ var (
 	bold   = color.New(color.Bold).SprintFunc()
 )
 
-func shortHome(path string) string {
+func shortenHome(path string) string {
 	home, _ := os.UserHomeDir()
 	if strings.HasPrefix(path, home) {
 		return "~" + path[len(home):]

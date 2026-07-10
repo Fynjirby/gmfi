@@ -7,15 +7,15 @@ import (
 	"strings"
 )
 
-func treeCommand(root string, showHidden bool) {
-	fmt.Printf("\n%s\n", shortHome(root))
-	err := walkTree(root, showHidden, "")
+func treeCommand(root string) {
+	fmt.Printf("%s\n", shortenHome(root))
+	err := walkTree(root, "")
 	if err != nil {
-		fmt.Printf("%s", red("\nerror reading directory\n"))
+		fmt.Printf("%s", red("error reading directory\n"))
 	}
 }
 
-func walkTree(path string, showHidden bool, prefix string) error {
+func walkTree(path string, prefix string) error {
 	entries, err := os.ReadDir(path)
 	if err != nil {
 		return err
@@ -24,7 +24,7 @@ func walkTree(path string, showHidden bool, prefix string) error {
 	var visibleEntries []os.DirEntry
 
 	for _, entry := range entries {
-		if !showHidden && strings.HasPrefix(entry.Name(), ".") {
+		if strings.HasPrefix(entry.Name(), ".") {
 			continue
 		}
 		visibleEntries = append(visibleEntries, entry)
@@ -39,7 +39,7 @@ func walkTree(path string, showHidden bool, prefix string) error {
 		}
 
 		fullPath := filepath.Join(path, entry.Name())
-		meta, metaErr := GetFileMeta(fullPath)
+		meta, metaErr := getMeta(fullPath)
 		if metaErr != nil {
 			fmt.Printf("%s%s%s %s\n", prefix, connector, red(entry.Name()), red("[error]"))
 			continue
@@ -60,7 +60,7 @@ func walkTree(path string, showHidden bool, prefix string) error {
 		)
 
 		if entry.IsDir() {
-			err := walkTree(fullPath, showHidden, subPrefix)
+			err := walkTree(fullPath, subPrefix)
 			if err != nil {
 				fmt.Println(red(err))
 			}

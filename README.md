@@ -25,28 +25,22 @@ Go to [releases](https://github.com/jvqtil/gmfi/releases/) and download latest b
 - Run `go build` in repo directory, then move it to `/usr/local/bin/`
 
 ## Usage
-The main app command is `gmfi <filename> [or more files]` to see file / dir info
+The main app command `gmfi <filename> [or more files]` is used to see file / dir info
 
-Oh, and this is `gmfi help` btw, the list of all commands available
-to get help of any just use `gmfi <command>`, it will show the syntax 
+Here's a list of all commands
 ```
-gmfi search <what> [where]    > find files in directory
-gmfi diff <what> <with what>  > compare two files
-gmfi view <file>              > print file content with bat, less or cat
-gmfi tree [dir]               > display folder structure
-gnfi big [where] [count]      > show biggest files in a directory
-gmfi small [where] [count]    > show smallest files in a directory
-
-gmfi -v | --version
-gmfi -h | --help
-```
-
-## Other
-`gmfi` is built to be easy to integrate anywhere, for example, in emacs. This is an example function that you can bind on any keybind you like and enjoy gmfi without leaving your favourite editor.
-```elisp
-(defun rc/gmfi-it ()
-  (interactive)
-  (when-let ((file (buffer-file-name)))
-    (message "%s" (shell-command-to-string
-                   (concat "gmfi " (shell-quote-argument file))))))
+commands:
+ find     <pattern> [path]
+  find files in directory
+ compare  <file> <another file>
+  compare two files
+ tree     [path]
+  display folder structure
+ biggest  [count] [path]
+  show biggest files in a directory
+ smallest [count] [path]
+  show smallest files in a directory
+flags:
+ -h | --help
+ -v | --version
 ```

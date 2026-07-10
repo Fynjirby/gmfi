@@ -18,7 +18,7 @@ type FileMeta struct {
 	RawSize int64
 }
 
-func GetFileMeta(path string) (*FileMeta, error) {
+func getMeta(path string) (*FileMeta, error) {
 	info, err := os.Stat(path)
 	if err != nil {
 		return nil, err
@@ -38,7 +38,7 @@ func GetFileMeta(path string) (*FileMeta, error) {
 
 	return &FileMeta{
 		Name:    info.Name(),
-		Path:    shortHome(abs),
+		Path:    shortenHome(abs),
 		Type:    ftype,
 		Size:    humanize.Bytes(uint64(size)),
 		Perm:    fmt.Sprintf("%o", info.Mode().Perm()),
