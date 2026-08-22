@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"strconv"
@@ -61,21 +62,38 @@ func main() {
 		return
 
 	default:
-		for _, file := range os.Args[1:] {
+		jsonFlag, clean := wantsJSON(os.Args[1:])
+
+		for _, file := range clean {
 			meta, err := getMeta(file)
 			if err != nil {
-				fmt.Printf("%v\n", red(err))
-				return
+				if jsonFlag {
+					fmt.Println("{}")
+				} else {
+					fmt.Printf("! %v\n", red(err))
+				}
+				continue
 			}
 
-			fmt.Printf("> %s (%s) - %s [%s] | %s\n", red(meta.Name), green(meta.Size), yellow(meta.Type), blue(meta.Perm), meta.Mod)
+			if meta != nil {
+				if jsonFlag {
+					data, err := json.MarshalIndent(meta, "", "  ")
+					if err != nil {
+						fmt.Println(err)
+						return
+					}
+					fmt.Println(string(data))
+				} else {
+					fmt.Printf("> %s (%s) - %s [%s] | %s\n", red(meta.Name), green(meta.Size), yellow(meta.Type), blue(meta.Perm), meta.Mod)
+				}
+			}
 		}
 	}
 }
 
 func printHelp() {
 	fmt.Printf("usage:\n")
-	fmt.Printf(" %s %s %s\n", green("gmfi"), blue("<file>"), pink("[or more files]"))
+	fmt.Printf(" %s %s %s %s\n", green("gmfi"), blue("<file>"), pink("[or more files]"), red("[--json]"))
 
 	fmt.Printf("commands:\n")
 	fmt.Printf(" %s %s %s\n  %s\n", green(fmt.Sprintf("%-8s", "find")), blue("<pattern>"), pink("[path]"), "find files in directory")
@@ -88,4 +106,17 @@ func printHelp() {
 	fmt.Printf(" %s | %s\n", pink("-h"), pink("--help"))
 	fmt.Printf(" %s | %s\n", pink("-v"), pink("--version"))
 	fmt.Printf("%s\n", yellow("https://github.com/jvqtil/gmfi/"))
+}
+
+func wantsJSON(args []string) (bool, []string) {
+	var clean []string
+	found := false
+	for _, a := range args {
+		if a == "--json" {
+			found = true
+		} else {
+			clean = append(clean, a)
+		}
+	}
+	return found, clean
 }
