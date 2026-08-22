@@ -70,10 +70,10 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.event.inputs.version }}
-          name: "gmfi ${{ github.event.inputs.version }} | Build: ${{ github.event.inputs.build }}"
+          name: "${{ github.event.inputs.version }}"
           generate_release_notes: true
           body: |
-            # gmfi prebuilt binaries
+            Build date: ${{ github.event.inputs.build }}
           files: |
             dist/gmfi-linux-amd64
             dist/gmfi-linux-arm64
